@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySmartFood</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .expired-soon {
+            background-color: #ffcccc;
+        }
+        .sort-button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MySmartFood - Sistem Sortir Makanan</h1>
+    
+    <form id="foodForm">
+        <label for="foodName">Nama Makanan:</label>
+        <input type="text" id="foodName" required>
+        
+        <label for="entryDate">Tanggal Masuk:</label>
+        <input type="date" id="entryDate" required>
+        
+        <label for="expiryDate">Tanggal Kadaluarsa:</label>
+        <input type="date" id="expiryDate" required>
+        
+        <button type="submit">Tambah Makanan</button>
+    </form>
+    
+    <button class="sort-button" onclick="sortByExpiry()">Sortir Berdasarkan Tanggal Kadaluarsa</button>
+    
+    <table id="foodTable">
+        <thead>
+            <tr>
+                <th>Nama Makanan</th>
+                <th>Tanggal Masuk</th>
+                <th>Tanggal Kadaluarsa</th>
+            </tr>
+        </thead>
+        <tbody id="foodList">
+            <!-- Daftar makanan akan ditambahkan di sini -->
+        </tbody>
+    </table>
+
+    <script>
+        const foodForm = document.getElementById('foodForm');
+        const foodList = document.getElementById('foodList');
+        let foods = []; // Array untuk menyimpan data makanan
+
+        foodForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const foodName = document.getElementById('foodName').value;
+            const entryDate = document.getElementById('entryDate').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            
+            // Tambahkan ke array
+            foods.push({ name: foodName, entry: entryDate, expiry: expiryDate });
+            
+            // Reset form
+            foodForm.reset();
+            
+            // Render ulang daftar
+            renderList();
+        });
+
+        function renderList() {
+            foodList.innerHTML = '';
+            const today = new Date();
+            
+            foods.forEach(food => {
+                const row = document.createElement('tr');
+                const expiry = new Date(food.expiry);
+                const daysUntilExpiry = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                
+                // Tandai jika kadaluarsa dalam 3 hari
+                if (daysUntilExpiry <= 3) {
+                    row.classList.add('expired-soon');
+                }
+                
+                row.innerHTML = `
+                    <td>${food.name}</td>
+                    <td>${food.entry}</td>
+                    <td>${food.expiry}</td>
+                `;
+                foodList.appendChild(row);
+            });
+        }
+
+        function sortByExpiry() {
+            foods.sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+            renderList();
+        }
+    </script>
+</body>
+</html>
